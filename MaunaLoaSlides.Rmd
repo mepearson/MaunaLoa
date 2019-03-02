@@ -1,0 +1,80 @@
+---
+title: "Mauna Loa CO~2~ Tracking: Personalize the Data"
+author: "M Pearson"
+date: "March 2, 2019"
+output: ioslides_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+library(plotly)
+library(lubridate)
+library(dplyr)
+
+```
+
+## Purpose
+
+### **Problem**  
+Climate change is one of the biggest challenges we face, but individuals have trouble conceptualizing or relating to the data.
+
+### **Solution**   
+Personalize the data to markers the user can set themselves, increasing their ability to relate to the data
+
+### **Case Study**  
+Personalized time period increase in CO~2~ from Mauna Loa Data
+
+
+## Case Study Framework: the Data  
+
+Since 1959 scientists have collected CO~2~ data from Mauna Loa in Hawaii - possibly *the* classic data set in Climate Science.
+
+To allow users to explore this data we built a Shiny App that allows users to plot a post-1958 date of importance (suggestion: a birthday!) and calculates the rise in global CO2 since that date.
+
+Tying CO~2~ rise to a personally meaningful time frame can help drive home how dramatically and rapidly global CO~2~ is changing.
+
+
+## CO~2~ change this Millenia
+
+```{r Load_Data}
+#Load NOAA Data and process data frame for use
+co2URL <- 'ftp://aftp.cmdl.noaa.gov/products/trends/co2/co2_mm_mlo.txt'
+ml <- read.table(co2URL)
+colnames(ml) <- c("Year","Month", "decimal","average","interpolated","trend","other" )
+
+# Get most recent value and data from New Millenia, 
+# get decimal value for plot
+recentAvg <- ml[nrow(ml),6]
+recentDecimal <- ml[nrow(ml),3]
+milleniaCO2 <-   ml[which(ml$Year==2000 & ml$Month==1),6]
+milleniaDecimal <-   ml[which(ml$Year==2000 & ml$Month==1),3] 
+
+```
+
+```{r testPlot}
+tp <- plot_ly(ml) %>% add_trace(x=~decimal, y=~interpolated, type = 'scatter', mode = 'lines', name="Monthly Average", transforms = list(
+           list(
+                 type = 'filter',
+                 target = 'y',
+                 operation = '>',
+                 value = 0
+             )
+      )) %>% add_trace(x=~decimal, y=~trend, type = 'scatter', mode = 'lines', name="Seasonally Adjusted Trend") %>%
+        layout(legend = list(x = 0.05, y = .95), xaxis=list(title='Date'),yaxis=list(title='CO<sub>2</sub> [ppm]')) %>%
+      add_markers(x=milleniaDecimal, y = milleniaCO2,name="January 2000 ",marker=list(symbol=~17 , size=25 , color="orange", text='input'))  %>%
+      add_markers(x=recentDecimal, y = recentAvg,name="Today",marker=list(symbol=~17 , size=20 , color="red", text='today'))
+tp
+```
+An increase of **`r recentAvg-milleniaCO2` ppm** in less than 20 years
+
+## Resources
+
+### **Explore the App yourself**  
+Shiny App:  https://mpearson.shinyapps.io/maunaloa/
+
+### **Github repository**  
+https://github.com/mepearson/MaunaLoa
+
+### **Data Credit**  
+Data from Dr. Pieter Tans, NOAA/ESRL (www.esrl.noaa.gov/gmd/ccgg/trends/) and Dr. Ralph Keeling, Scripps Institution of Oceanography (scrippsco2.ucsd.edu/).
+https://www.esrl.noaa.gov/gmd/ccgg/trends/data.html
