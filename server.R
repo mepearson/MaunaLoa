@@ -17,9 +17,8 @@ recentDecimal <- ml[nrow(ml),3]
 testAvg <- recentAvg
 testDecimal <- recentDecimal
 
-# Define server logic required to draw a histogram
 shinyServer(function(input, output,session) {
-  #Get Basic Values when birthdate changes
+  #Get Basic Values when birthdate changes - revisist creating global variables 
   #birthMonth <- reactive({month(as.POSIXlt(input$birthdate, format="%m/%d/%Y"))}) 
   #birthYear <- reactive({year(as.POSIXlt(input$birthdate, format="%m/%d/%Y"))})
   #monthName <- reactive({month.name[birthMonth()]})
@@ -69,7 +68,7 @@ shinyServer(function(input, output,session) {
     increasePercent <-   round((100 * recentAvg / birthCO2Seasonal),0)  
      # paste('In','mn','of')
       paste('<h4>Global Average CO2:</h4>',monthName,birthYear,': <b>',birthCO2Seasonal,'</b>ppm<br />Today:<b>',recentAvg,'</b> ppm<br /><br />
-            <b> Increase:</b> <br/>',co2Increase,'ppm <br />', increasePercent,'% ') 
+            <b> Increase:</b> <br/><b>',co2Increase,'ppm<b> <br />', increasePercent,'% ') 
       
     }
   })
